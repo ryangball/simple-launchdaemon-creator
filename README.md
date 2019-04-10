@@ -6,7 +6,7 @@ To build new versions you can simply run the build.sh script and specify a versi
 ```
 $ git clone https://github.com/ryangball/simple-launchdaemon-creator.git
 $ cd simple-launchdaemon-creator
-$ sh build.sh 1.5
+$ ./build.sh 1.5
 Version set to 1.5
 Building the .pkg in /Users/ryangball/simple-launchdaemon-creator/build/
 Revealing Package_1.5.pkg in Finder
