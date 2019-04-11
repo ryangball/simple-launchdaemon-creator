@@ -80,8 +80,8 @@ cat << EOF > "/private/tmp/$packageName/scripts/postinstall"
 # Set permissions on LaunchDaemon and Script
 chown root:wheel /Library/LaunchDaemons/$identifier.plist
 chmod 644 /Library/LaunchDaemons/$identifier.plist
-chown -R root:wheel /Library/Scripts/$targetName
-chmod -R 755 /Library/Scripts/$targetName
+chown -R root:wheel "/Library/Scripts/$targetName"
+chmod -R 755 "/Library/Scripts/$targetName"
 
 # Start our LaunchDaemon
 /bin/launchctl load -w /Library/LaunchDaemons/$identifier.plist
