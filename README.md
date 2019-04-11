@@ -1,5 +1,5 @@
 # Simple LaunchDaemon Creator
-Easily create a LaunchDaemon for use on a Mac. You choose the identifier, the name, the version, and the target script/app to create a .pkg containing all necessary files with correct permissions. Upon installation of the resulting .pkg, the target script/app will load automatically at time of install, as well as when the system starts.
+Easily create a LaunchDaemon for use on a Mac. You choose the identifier, the name, the version, and the target script/app (.sh, .bash, .py, .app) to create a .pkg containing all necessary files with correct permissions. Upon installation of the resulting .pkg, the target script/app will load automatically at time of install, as well as when the system starts.
 
 ## Install a Release
 You can download a .pkg from the [release](https://github.com/ryangball/simple-launchdaemon-creator/releases) section containing a pre-built .app which installs under the /Applications directory. Just install the .pkg, and run "/Applications/Simple LaunchDaemon Creator.app" to start.
@@ -24,7 +24,41 @@ cd simple-launchdaemon-creator
 ./build.sh 1.0
 ```
 
-## LaunchDaemon Logging
+## LaunchDaemon Plist Keys Automatically Set
+Example LaunchDaemon plist that gets created:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.github.ryangball.sample</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/sh</string>
+		<string>/Library/Scripts/Sample.sh</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Library/Logs/com.github.ryangball.sample.log</string>
+	<key>StandardOutPath</key>
+	<string>/Library/Logs/com.github.ryangball.sample.log</string>
+</dict>
+</plist>
+```
+### ProgramArguments Key
+Simple LaunchDaemon Creator tries to determine the ProgramArguments from the [shebang](https://github.com/MadhavBahlMD/shebang-everything#shebang) line if your target is a script. So you should include a valid shebang as the first line of your script. If your target is an app, `/usr/bin/open` is used.
+
+Supported shebangs ([request something](https://github.com/ryangball/simple-launchdaemon-creator/issues/new?title=[Feature%20Request])):
+- `#!/bin/bash`
+- `#!/bin/sh`
+- `#!/usr/bin/python`
+
+### RunAtLoad Key
+The RunAtLoad key is set to true. This will start the LaunchDaemon at system startup.
+
+### StandardErrorPath and StandardOutPath Keys
 The main LaunchDaemon plist is automatically set to have stdout and stderr combined and written to `/Library/Logs/YOUR_CHOSEN_IDENTIFIER.log` for ease of troubleshooting.
 
 ## Using a LaunchDaemon to Launch GUI Applications
@@ -34,3 +68,13 @@ Not all applications will have this issue (non GUI apps). When creating a Launch
 
 ## YMMV
 Of course there are a lot of variables that go into LaunchDaemons. This is creates a very simple LaunchDaemon with the RunAtLoad key set to true. If you need to customize this, feel free to clone the repository and make any modifications you feel necessary.
+
+## Issues or Additional Features
+### Issues
+If you have an issue, you can [submit an issue](https://github.com/ryangball/simple-launchdaemon-creator/issues/new?title=[Feature%20Request]) and I'll take a look at it.
+
+### Feature Requests
+If you think additional functionality would be beneficial, you can [create a feature request](https://github.com/ryangball/simple-launchdaemon-creator/issues/new?title=[Feature%20Request]) by creating an issue and noting that it is a feature request.
+
+### Become a Collaborator
+If you'd like to become a collaborator for PRs, let me know.

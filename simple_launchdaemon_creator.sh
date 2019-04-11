@@ -23,7 +23,7 @@ echo "Package Name set to: $packageName"
 echo "Version set to: $version"
 
 # Prompt for the target of the LaunchDaemon
-[[ -z "$target" ]] && target=$(osascript -e 'set new_file to POSIX path of (choose file with prompt "Choose target sh script or app." of type {"SH","APP"})' 2> /dev/null)
+[[ -z "$target" ]] && target=$(osascript -e 'set new_file to POSIX path of (choose file with prompt "Choose target sh script or app." of type {"SH","BASH","PY","APP"})' 2> /dev/null)
 [[ -z "$target" ]] && echo "User cancelled; exiting." && exit 0
 targetPath=${target%/}
 targetName=${targetPath##*/}
@@ -38,8 +38,20 @@ if [[ "$targetName" == *.app ]]; then
     programArguments="/usr/bin/open"
 else
     echo "Setting LaunchDaemon program arguments to run a script..."
-    programArguments="sh"
+    # Try to determine the program arguments from the script's shebang
+    case "$(head -n 1 "$targetPath")" in
+        *bash)
+            programArguments="/bin/bash"
+            ;;
+        *sh)
+            programArguments="/bin/sh"
+            ;;
+        *python)
+            programArguments="/usr/bin/python"
+            ;;
+    esac
 fi
+echo "Program Arguments set to: $programArguments"
 
 # Create/clean our build directories
 echo "Build directory will be: /private/tmp/$packageName"
@@ -69,10 +81,10 @@ cat << EOF > "/private/tmp/$packageName/files/Library/LaunchDaemons/$identifier.
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
-    <key>StandardErrorPath</key>
-    <string>/Library/Logs/$identifier.log</string>
-    <key>StandardOutPath</key>
-    <string>/Library/Logs/$identifier.log</string>
+	<key>StandardErrorPath</key>
+	<string>/Library/Logs/$identifier.log</string>
+	<key>StandardOutPath</key>
+	<string>/Library/Logs/$identifier.log</string>
 </dict>
 </plist>
 EOF
