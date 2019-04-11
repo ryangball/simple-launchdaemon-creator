@@ -20,7 +20,8 @@ packageName=${packageName%.pkg*}
 [[ -z "$version" ]] && echo "User cancelled; exiting" && exit 0
 
 # Prompt for the target of the LaunchDaemon
-[[ -z "$target" ]] && target=$(osascript -e 'tell app (path to frontmost application as Unicode text) to set new_file to POSIX path of (choose file with prompt "Choose target sh script or app." of type {"SH","APP"})' 2> /dev/null)
+# [[ -z "$target" ]] && target=$(osascript -e 'tell app (path to frontmost application as Unicode text) to set new_file to POSIX path of (choose file with prompt "Choose target sh script or app." of type {"SH","APP"})' 2> /dev/null)
+[[ -z "$target" ]] && target=$(osascript -e 'set new_file to POSIX path of (choose file with prompt "Choose target sh script or app." of type {"SH","APP"})' 2> /dev/null)
 [[ -z "$target" ]] && echo "User cancelled; exiting." && exit 0
 targetPath=${target%/}
 targetName=${targetPath##*/}
