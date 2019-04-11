@@ -9,42 +9,52 @@ target=""       # main_script_name.sh
 [[ -z "$identifier" ]] && identifier=$(osascript -e 'set identifier to the text returned of (display dialog "Enter the identifier of the package." default answer "com.company.package")' 2> /dev/null)
 [[ -z "$identifier" ]] && echo "User cancelled; exiting" && exit 0
 identifier=${identifier%.plist*}
+echo "Identifier set to: $identifier"
 
 # Prompt for the name of the package, strip off .pkg if it is included
 [[ -z "$packageName" ]] && packageName=$(osascript -e 'set packageName to the text returned of (display dialog "Enter the name of the package." default answer "Package Name")' 2> /dev/null)
 [[ -z "$packageName" ]] && echo "User cancelled; exiting" && exit 0
 packageName=${packageName%.pkg*}
+echo "Package Name set to: $packageName"
 
 # Prompt for the version
 [[ -z "$version" ]] && version=$(osascript -e 'set theVersion to the text returned of (display dialog "Enter the version of the package." default answer "1.0")' 2> /dev/null)
 [[ -z "$version" ]] && echo "User cancelled; exiting" && exit 0
+echo "Version set to: $version"
 
 # Prompt for the target of the LaunchDaemon
-# [[ -z "$target" ]] && target=$(osascript -e 'tell app (path to frontmost application as Unicode text) to set new_file to POSIX path of (choose file with prompt "Choose target sh script or app." of type {"SH","APP"})' 2> /dev/null)
 [[ -z "$target" ]] && target=$(osascript -e 'set new_file to POSIX path of (choose file with prompt "Choose target sh script or app." of type {"SH","APP"})' 2> /dev/null)
 [[ -z "$target" ]] && echo "User cancelled; exiting." && exit 0
 targetPath=${target%/}
 targetName=${targetPath##*/}
+echo "Target Name is: $targetName"
+
+# Configure the target and warn if .app is chosen
+if [[ "$targetName" == *.app ]]; then
+    echo "Warning user of LaunchDaemon use to open applications."
+    [[ -z "$confirmation" ]] && confirmation=$(osascript -e 'display dialog "Opening an app that requires a GUI is better suited for a LaunchAgent. Are you sure you want to continue?" buttons {"Cancel","I Understand"} default button 2 with icon 2' 2> /dev/null)
+    [[ -z "$confirmation" ]] && echo "User cancelled; exiting." && exit 0
+    echo "Setting LaunchDaemon program arguments to open an app..."
+    programArguments="/usr/bin/open"
+else
+    echo "Setting LaunchDaemon program arguments to run a script..."
+    programArguments="sh"
+fi
 
 # Create/clean our build directories
+echo "Build directory will be: /private/tmp/$packageName"
 find "/private/tmp/$packageName" -mindepth 1 -delete
 mkdir -p "/private/tmp/$packageName/files/Library/LaunchDaemons"
 mkdir -p "/private/tmp/$packageName/files/Library/Scripts/"
 mkdir -p "/private/tmp/$packageName/scripts"
 mkdir -p "/private/tmp/$packageName/build"
 
-# Configure the target
-if [[ "$targetName" == *.app ]]; then
-    echo "Setting LaunchDaemon program arguments to open an app."
-    programArguments="/usr/bin/open"
-else
-    echo "Setting LaunchDaemon program arguments to run a script."
-    programArguments="sh"
-fi
+# Move target into place
 echo "Moving $targetName to temporary build directory..."
 cp -R "$targetPath" "/private/tmp/$packageName/files/Library/Scripts/"
 
 # Create the LaunchDaemon plist
+echo "Creating the LaunchDaemon plist..."
 cat << EOF > "/private/tmp/$packageName/files/Library/LaunchDaemons/$identifier.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -59,11 +69,16 @@ cat << EOF > "/private/tmp/$packageName/files/Library/LaunchDaemons/$identifier.
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
+    <key>StandardErrorPath</key>
+    <string>/Library/Logs/$identifier.log</string>
+    <key>StandardOutPath</key>
+    <string>/Library/Logs/$identifier.log</string>
 </dict>
 </plist>
 EOF
 
 # Create the preinstall script
+echo "Creating the preinstall/postinstall scripts..."
 cat << EOF > "/private/tmp/$packageName/scripts/preinstall"
 #!/bin/bash
 
@@ -100,7 +115,7 @@ find "/private/tmp/$packageName/" -name '*.DS_Store' -type f -delete
 /usr/bin/xattr -rc "/private/tmp/$packageName"
 
 # Build the .pkg
-echo "Building the .pkg in /private/tmp/$packageName/build/"
+echo "Building the .pkg in: /private/tmp/$packageName/build/"
 /usr/bin/pkgbuild --quiet --root "/private/tmp/$packageName/files/" \
     --install-location "/" \
     --scripts "/private/tmp/$packageName/scripts/" \

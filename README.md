@@ -6,7 +6,7 @@ You can download a .pkg from the [release](https://github.com/ryangball/simple-l
 
 ## Build a LaunchDaemon .PKG from Command Line
 Alternatively, you can clone this repository and simply run the simple_launchdaemon_creator.sh from Terminal.
-```
+```bash
 git clone https://github.com/ryangball/simple-launchdaemon-creator.git
 cd simple-launchdaemon-creator
 ./simple_launchdaemon_creator.sh
@@ -18,11 +18,19 @@ cd simple-launchdaemon-creator
     - You must install the command line tool associated with Platypus. Open Platypus, in the Menu Bar choose "Platypus" > "Preferences" and click the "Install" button to install the Platypus command line tool.
 
 To build the application yourself you can simply run the build.sh script and specify a version number for both the .app and .pkg. The resulting .pkg will include the .app with a target of /Applications just like any of the [releases](https://github.com/ryangball/simple-launchdaemon-creator/releases). If you do not include a version number as a parameter then version 1.0 will be assigned as the default. You can modify the simple_launchdaemon_creator.sh script first and build the .app afterward if you'd like.
-```
+```bash
 git clone https://github.com/ryangball/simple-launchdaemon-creator.git
 cd simple-launchdaemon-creator
 ./build.sh 1.0
 ```
 
-## This Won't Work For Everybody
+## LaunchDaemon Logging
+The main LaunchDaemon plist is automatically set to have stdout and stderr combined and written to `/Library/Logs/YOUR_CHOSEN_IDENTIFIER.log` for ease of troubleshooting.
+
+## Using a LaunchDaemon to Launch GUI Applications
+Applications that require the GUI typically need to run in the user's context which means after a user is logged in. This is problematic (not impossible) for a LaunchDaemon. For example if you use a LaunchDaemon to open Google Chrome.app, the LaunchDaemon will attempt to launch Chrome before a user is even logged in which will fail.
+
+Not all applications will have this issue (non GUI apps). When creating a LaunchDaemon with an app as a target, you will be warned that a LaunchAgent might be better.
+
+## YMMV
 Of course there are a lot of variables that go into LaunchDaemons. This is creates a very simple LaunchDaemon with the RunAtLoad key set to true. If you need to customize this, feel free to clone the repository and make any modifications you feel necessary.

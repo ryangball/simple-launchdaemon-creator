@@ -18,17 +18,16 @@ mkdir -p "$PWD/build"
 # Build the .app
 echo "Building the .app with Platypus..."
 /usr/local/bin/platypus \
-    --background \
-    --quit-after-execution \
     --app-icon "$PWD/images/AppIcon.icns" \
     --name 'Simple LaunchDaemon Creator' \
-    --interface-type 'None' \
+    --interface-type 'Progress Bar' \
     --interpreter '/bin/bash' \
     --author 'Ryan Ball' \
     --app-version "$version" \
     --bundle-identifier "$identifier" \
     --optimize-nib \
     --overwrite \
+    --text-font 'Helvetica 13' \
     'simple_launchdaemon_creator.sh' \
     "/private/tmp/simple-launchdaemon-creator/files/Applications/Simple LaunchDaemon Creator.app"
 
