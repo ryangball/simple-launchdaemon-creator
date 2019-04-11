@@ -71,10 +71,7 @@ Of course there are a lot of variables that go into LaunchDaemons. This is creat
 
 ## Issues or Additional Features
 ### Issues
-If you have an issue, you can [submit an issue](https://github.com/ryangball/simple-launchdaemon-creator/issues/new?title=[Feature%20Request]) and I'll take a look at it.
+For issues that you think are worth looking into, you can [submit an issue](https://github.com/ryangball/simple-launchdaemon-creator/issues/new).
 
 ### Feature Requests
 If you think additional functionality would be beneficial, you can [create a feature request](https://github.com/ryangball/simple-launchdaemon-creator/issues/new?title=[Feature%20Request]) by creating an issue and noting that it is a feature request.
-
-### Become a Collaborator
-If you'd like to become a collaborator for PRs, let me know.
